@@ -1,5 +1,7 @@
 import java.awt.Container;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -41,6 +43,8 @@ public class SimpleMachineEditor extends JFrame{
 	
 	JTextArea inputArea;
 	
+	
+	
 	int currentEditor;
 	int currentBase;
 	
@@ -53,15 +57,49 @@ public class SimpleMachineEditor extends JFrame{
 		viewMenu = new JMenu("View");
 		
 		startButton = new JMenuItem("Start");
+		startButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				new SimpleMachineSimulator(data);
+			}
+		});
 		exitButton = new JMenuItem("Exit");
+		exitButton.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent arg0) {
+				System.exit(-1);
+			}	
+		});
 		
 		decimel = new JMenuItem("Decimal Editing");
+		decimel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sbDecimal();
+			}
+		});
 		hexadecimal = new JMenuItem("Hexadecimal Editing");
+		hexadecimal.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sbHexadecimal();
+			}
+		});
 		binary = new JMenuItem("Binary Editing");
+		binary.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				sbBinary();
+			}
+		});
 		
 		areaEditor = new JMenuItem("Area");
-		
+		areaEditor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				svArea();
+			}
+		});
 		gridEditor = new JMenuItem("Grid");
+		gridEditor.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				svGrid();
+			}
+		});
 		
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
@@ -80,10 +118,12 @@ public class SimpleMachineEditor extends JFrame{
 		gridPanel = new JPanel();
 		gridPanel.setLayout(new GridLayout(16,16));
 		for(int i = 0; i < 256; i++){
-			gridPanel.add(fieldArray[i] = new JTextField(5));
+			gridPanel.add(fieldArray[i] = new JTextField(Integer.toBinaryString(0), 5));
 		}
-		inputArea = new JTextArea(20, 5);
+		inputArea = new JTextArea(10, 50);
+		inputArea.setLineWrap(true);
 		
+		setTitle("Simple Machine Emulator");
 		setJMenuBar(menuBar);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container c = getContentPane();
@@ -91,11 +131,14 @@ public class SimpleMachineEditor extends JFrame{
 		c.add(gridPanel);
 		c.add(inputArea);
 		pack();
+		svGrid();
+		sbHexadecimal();
 	}
 	
 	
 	private void svArea(){
 		updateData();
+		if(currentBase == DECIMAL && currentEditor == AREA_EDITOR);
 		currentEditor = AREA_EDITOR;
 		updateEditor();
 		decimel.setVisible(false);
@@ -105,7 +148,31 @@ public class SimpleMachineEditor extends JFrame{
 	}
 	
 	private void svGrid(){
-		
+		updateData();
+		currentEditor = GRID_EDITOR;
+		updateEditor();
+		decimel.setVisible(true);
+		gridPanel.setVisible(true);
+		inputArea.setVisible(false);
+		pack();
+	}
+	
+	private void sbBinary(){
+		updateData();
+		currentBase = BINARY;
+		updateEditor();
+	}
+	
+	private void sbDecimal(){
+		updateData();
+		currentBase = DECIMAL;
+		updateEditor();
+	}
+	
+	private void sbHexadecimal(){
+		updateData();
+		currentBase = HEXADECIMAL;
+		updateEditor();
 	}
 	
 	private void updateEditor(){
@@ -124,6 +191,7 @@ public class SimpleMachineEditor extends JFrame{
 	}
 	
 	private void updateData(){
+		String errors = "";
 		if(currentEditor == GRID_EDITOR){
 			for(int i = 0; i < 256; i++){
 				int val = 0;
@@ -131,7 +199,7 @@ public class SimpleMachineEditor extends JFrame{
 					val = Integer.parseInt(fieldArray[i].getText(),currentBase);
 				}
 				catch(NumberFormatException e){
-					JOptionPane.showMessageDialog(this, "Formating error in byte " + i);
+					errors+=" " + i;
 				}
 				if(val < 0 || val >= 256) val = 0;
 				data[i] = val;
@@ -146,10 +214,16 @@ public class SimpleMachineEditor extends JFrame{
 						val = Integer.parseInt(string.substring(i, i + 8),currentBase);
 					}
 					catch(NumberFormatException e){
-						JOptionPane.showMessageDialog(this, "Formating error in byte " + i/8);
+						errors+=" " + i/8;
 					}
-					if(val < 0 || val >= 256) val = 0;
-					data[i/8] = val;
+					catch(StringIndexOutOfBoundsException e){
+						errors += " " + i/8 + " +";
+						break;
+					}
+					finally{
+						if(val < 0 || val >= 256) val = 0;
+						data[i/8] = val;
+					}
 				}
 			}
 			else if(currentBase == HEXADECIMAL){
@@ -159,12 +233,28 @@ public class SimpleMachineEditor extends JFrame{
 						val = Integer.parseInt(string.substring(i, i + 2),currentBase);
 					}
 					catch(NumberFormatException e){
-						JOptionPane.showMessageDialog(this, "Formating error in byte " + i/2);
+						errors += " " + i/2;
 					}
-					if(val < 0 || val >= 256) val = 0;
-					data[i/8] = val;
+					catch(StringIndexOutOfBoundsException e){
+						errors += " " + i/2 + " +";
+						break;
+					}
+					finally{
+						if(val < 0 || val >= 256) val = 0;
+						data[i/2] = val;
+					}
 				}
 			}
+		}
+		if(!errors.equals("")){
+			if(errors.length() > 100){
+				String nerrors = "";
+				for(int i = 0; i < errors.length(); i += 50){
+					nerrors+=errors.substring(i,(i+50 < errors.length() ? i + 50 : errors.length())) + "\n";
+				}
+				errors = nerrors;
+			}
+			JOptionPane.showMessageDialog(this, "Formating error in byte(s)\n " + errors);
 		}
 	}
 }

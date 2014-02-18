@@ -3,14 +3,17 @@ public class Machine {
 	private int[] main_memory;
 	private int pc;
 	private int[] register;
+	int halt;
 	
 	public Machine(int[] main_memory){
 		this.main_memory = main_memory;
 		pc = 0;
 		register = new int[16];
+		halt = 0;
 	}
 	
 	public void step(){
+		if(halt == 1) return;
 		int opcode = main_memory[pc]/16;
 		int operand1 = main_memory[pc]%16, operand2 = main_memory[pc+1]/16, operand3 = main_memory[pc+1]%16;
 		pc+=2;
@@ -49,6 +52,10 @@ public class Machine {
 			if(register[operand1] == register[0]){
 				pc = (operand2 << 4) + operand3;
 			}
+			break;
+		case 0xC:
+			halt = 1;
+			break;
 		}
 	}
 	
@@ -70,7 +77,7 @@ public class Machine {
 	}
 	
 	public int[] getState(){
-		int[] ret = new int[256 + 16 + 1];
+		int[] ret = new int[256 + 16 + 1 + 1];
 		for(int i = 0; i < 256; i++){
 			ret[i] = main_memory[i];
 		}
@@ -78,6 +85,7 @@ public class Machine {
 			ret[i+256] = register[i];
 		}
 		ret[256 + 16] = pc;
+		ret[256 + 16 + 1] = halt;
 		return ret;
 	}
 	
@@ -85,10 +93,14 @@ public class Machine {
 		String ret = "";
 		int[] state = getState();
 		ret += state[0];
-		for(int i = 1; i < (256 + 16 + 1); i++){
+		for(int i = 1; i < (256 + 16 + 1 + 1); i++){
 			ret += " " + state[i];
 		}
 		return ret;
+	}
+	
+	public boolean halted(){
+		return halt == 1;
 	}
 
 }
