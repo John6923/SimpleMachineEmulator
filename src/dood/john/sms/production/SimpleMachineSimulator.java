@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -31,7 +30,6 @@ public class SimpleMachineSimulator extends JFrame{
 	JMenu edit;
 	JMenuItem setFrequency;
 	
-	JLabel[] main_memory_label;
 	JTextField[] main_memory;
 	JPanel registers;
 	JLabel[] register_label;
@@ -43,6 +41,7 @@ public class SimpleMachineSimulator extends JFrame{
 	
 	int frequency = 1;
 	Timer timer;
+	boolean paused = true;
 	
 	public SimpleMachineSimulator(int[] data){
 		initialData = data;
@@ -76,12 +75,14 @@ public class SimpleMachineSimulator extends JFrame{
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				timer.start();
+				paused = false;
 			}
 		});
 		pause = new JMenuItem("Pause");
 		pause.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				timer.stop();
+				paused = true;
 			}
 		});
 		
@@ -103,13 +104,11 @@ public class SimpleMachineSimulator extends JFrame{
 		
 		setJMenuBar(menuBar);
 		
-		main_memory_label = new JLabel[16];
 		main_memory = new JTextField[256];
 		for(int i = 0; i < 256; i+=16){
 			JPanel panel = new JPanel();
 			panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-			main_memory_label[i/16] = new JLabel(String.format("0x%02X", i));
-			panel.add(main_memory_label[i/16]);
+			panel.add(new JLabel(String.format("0x%02X", i)));
 			for(int j = i; j < i + 16; j++){
 				main_memory[j] = new JTextField(String.format("0x%02X",initialData[j]),3);
 				main_memory[j].setEditable(false);
@@ -134,7 +133,7 @@ public class SimpleMachineSimulator extends JFrame{
 		}
 		c.add(registers);
 		
-		pchalt = new JLabel("PC: 0x00, Not Halted");
+		pchalt = new JLabel("PC: 0x00, Not Halted, Frequency: 1 Hz, Paused");
 		c.add(pchalt);
 		
 		pack();
@@ -165,6 +164,7 @@ public class SimpleMachineSimulator extends JFrame{
 				JOptionPane.showMessageDialog(SimpleMachineSimulator.this, "Could not parse input");
 			}
 			timer.setDelay(1000/frequency);
+			updateUI();
 		}
 	}
 	
@@ -178,6 +178,6 @@ public class SimpleMachineSimulator extends JFrame{
 		for(int i = 256; i < 256 + 16; i++){
 			register[i-256].setText(String.format("0x%02X",state[i]));
 		}
-		pchalt.setText(String.format("PC: 0x%02X, %s", pc, (halted ? "Halted" : "Not Halted")));
+		pchalt.setText(String.format("PC: 0x%02X, %s, Frequency: %d Hz, %s", pc, (halted ? "Halted" : "Not Halted"), frequency, (paused ? "Paused" : "Not Paused")));
 	}
 }
