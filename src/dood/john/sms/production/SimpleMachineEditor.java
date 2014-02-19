@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -22,6 +23,10 @@ public class SimpleMachineEditor extends JFrame{
 	JMenuItem startButton;
 	JMenuItem exitButton;
 	JMenuItem clear;
+	JMenuItem loadFromText;
+	JMenuItem loadFromTextWord;
+	JMenuItem exportAsText;
+	JMenuItem exportAsTextWord;
 	
 	JTextField[] main_memory;
 	
@@ -55,11 +60,72 @@ public class SimpleMachineEditor extends JFrame{
 				updateEditor();
 			}
 		});
+		loadFromText = new JMenuItem("Load from text (Byte)");
+		loadFromText.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				String string = JOptionPane.showInputDialog("Enter program two hexadecimal digits at a time\neg. 12 34 56 78 9A BC DE F0");
+				String[] strings = string.split(" ");
+				for(int i = 0; i < strings.length && i < 256; i++){
+					try{
+						data[i] = Integer.parseInt(strings[i],16);
+					}
+					catch(NumberFormatException ex){
+						data[i] = 0;
+					}
+				}
+				updateEditor();
+			}
+		});
+		loadFromTextWord = new JMenuItem("Load from text (Word)");
+		loadFromTextWord.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				String string = JOptionPane.showInputDialog("Enter program four hexadecimal digits at a time\nFor proper parsing a trailing byte should be suffixed with 00\neg. 1234 5678 9ABC DE00");
+				String[] strings = string.split(" ");
+				for(int i = 0; i < strings.length && i < 128; i++){
+					try{
+						int j;
+						data[2*i] = (j =Integer.parseInt(strings[i],16))/256;
+						data[2*i+1] = j%256;
+					}
+					catch(NumberFormatException ex){
+						data[2*i] = 0;
+						data[2*i+1] = 0;
+					}
+				}
+				updateEditor();
+			}
+		});
+		exportAsText = new JMenuItem("Export as text (Byte)"); 
+		exportAsText.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				updateData();
+				String string = "";
+				for(int i = 0; i < 256; i++){
+					string += String.format("%02X ", data[i]);
+				}
+				JOptionPane.showInputDialog(SimpleMachineEditor.this, "The text representation of the main memory as hexadecimal bytes", "Export (Byte)",JOptionPane.INFORMATION_MESSAGE,null,null,string);
+			}
+		});
+		exportAsTextWord = new JMenuItem("Export as text (Word)");
+		exportAsTextWord.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				updateData();
+				String string = "";
+				for(int i = 0; i < 255; i+=2){
+					string += String.format("%02X%02X ", data[i], data[i+1]);
+				}
+				JOptionPane.showInputDialog(SimpleMachineEditor.this, "The text representation of the main memory as hexadecimal words", "Export (Byte)",JOptionPane.INFORMATION_MESSAGE,null,null,string);
+			}
+		});
 		
 		menuBar.add(fileMenu);
 		
 		fileMenu.add(startButton);
 		fileMenu.addSeparator();
+		fileMenu.add(loadFromText);
+		fileMenu.add(loadFromTextWord);
+		fileMenu.add(exportAsText);
+		fileMenu.add(exportAsTextWord);
 		fileMenu.add(clear);
 		fileMenu.addSeparator();
 		fileMenu.add(exitButton);
@@ -83,7 +149,7 @@ public class SimpleMachineEditor extends JFrame{
 	
 	private void updateEditor(){
 		for(int i = 0; i < 256; i++){
-			main_memory[i].setText(Integer.toString(data[i], 16));
+			main_memory[i].setText(String.format("%X", data[i]));
 		}
 	}
 	

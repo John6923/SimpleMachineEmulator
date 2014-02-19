@@ -27,6 +27,7 @@ public class SimpleMachineSimulator extends JFrame{
 	JMenuItem step;
 	JMenuItem play;
 	JMenuItem pause;
+	JMenuItem exit;
 	JMenu edit;
 	JMenuItem setFrequency;
 	
@@ -85,6 +86,13 @@ public class SimpleMachineSimulator extends JFrame{
 				paused = true;
 			}
 		});
+		exit = new JMenuItem("Exit");
+		exit.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				timer.stop();
+				setVisible(false);
+			}
+		});
 		
 		edit = new JMenu("Edit");
 		setFrequency = new JMenuItem("Set Frequency");
@@ -99,10 +107,14 @@ public class SimpleMachineSimulator extends JFrame{
 		file.addSeparator();
 		file.add(play);
 		file.add(pause);
+		file.addSeparator();
+		file.add(exit);
 		
 		edit.add(setFrequency);
 		
 		setJMenuBar(menuBar);
+		
+		c.add(new JLabel("Main Memory:"));
 		
 		main_memory = new JTextField[256];
 		for(int i = 0; i < 256; i+=16){
@@ -116,6 +128,8 @@ public class SimpleMachineSimulator extends JFrame{
 			}
 			c.add(panel);
 		}
+		
+		c.add(new JLabel("Registers:"));
 		
 		registers = new JPanel();
 		registers.setLayout(new GridLayout(2,8));

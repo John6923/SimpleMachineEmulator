@@ -2,6 +2,8 @@ package dood.john.sms.test;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import javax.swing.JFrame;
+
 import dood.john.sms.production.SimpleMachineSimulator;
 
 
@@ -14,7 +16,10 @@ public class SimpleMachineSimulatorLauncher {
 		while(dp < 256 && scanner.hasNext()){
 			data[dp++] = Integer.parseInt(scanner.nextLine(), 16);
 		}
+		scanner.close();
 		SimpleMachineSimulator sms = new SimpleMachineSimulator(data);
+		sms.setVisible(true);
+		sms.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 	}
 }
