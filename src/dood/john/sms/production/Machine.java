@@ -1,3 +1,4 @@
+package dood.john.sms.production;
 
 public class Machine {
 	private int[] main_memory;
@@ -17,6 +18,7 @@ public class Machine {
 		int opcode = main_memory[pc]/16;
 		int operand1 = main_memory[pc]%16, operand2 = main_memory[pc+1]/16, operand3 = main_memory[pc+1]%16;
 		pc+=2;
+		pc%=256;
 		switch(opcode){
 		case 1:
 			register[operand1] = main_memory[(operand2 << 4) + operand3];
@@ -77,7 +79,7 @@ public class Machine {
 	}
 	
 	public int[] getState(){
-		int[] ret = new int[256 + 16 + 1 + 1];
+		int[] ret = new int[256 + 16 + 1];
 		for(int i = 0; i < 256; i++){
 			ret[i] = main_memory[i];
 		}
@@ -85,7 +87,6 @@ public class Machine {
 			ret[i+256] = register[i];
 		}
 		ret[256 + 16] = pc;
-		ret[256 + 16 + 1] = halt;
 		return ret;
 	}
 	
@@ -93,7 +94,7 @@ public class Machine {
 		String ret = "";
 		int[] state = getState();
 		ret += state[0];
-		for(int i = 1; i < (256 + 16 + 1 + 1); i++){
+		for(int i = 1; i < (256 + 16 + 1); i++){
 			ret += " " + state[i];
 		}
 		return ret;

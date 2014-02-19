@@ -1,3 +1,4 @@
+package dood.john.sms.production;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -30,6 +31,7 @@ public class SimpleMachineEditor extends JFrame{
 	
 	JMenuItem startButton;
 	JMenuItem exitButton;
+	JMenuItem clear;
 	
 	JMenuItem decimel;
 	JMenuItem hexadecimal;
@@ -59,7 +61,8 @@ public class SimpleMachineEditor extends JFrame{
 		startButton = new JMenuItem("Start");
 		startButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				new SimpleMachineSimulator(data);
+				updateData();
+				new SimpleMachineSimulator(data).setVisible(true);
 			}
 		});
 		exitButton = new JMenuItem("Exit");
@@ -67,6 +70,13 @@ public class SimpleMachineEditor extends JFrame{
 			public void actionPerformed(ActionEvent arg0) {
 				System.exit(-1);
 			}	
+		});
+		clear = new JMenuItem("Clear (Irreversable)");
+		clear.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				data = new int[256];
+				updateEditor();
+			}
 		});
 		
 		decimel = new JMenuItem("Decimal Editing");
@@ -102,17 +112,18 @@ public class SimpleMachineEditor extends JFrame{
 		});
 		
 		menuBar.add(fileMenu);
-		menuBar.add(editMenu);
-		menuBar.add(viewMenu);
+		//menuBar.add(editMenu);
+		//menuBar.add(viewMenu);
 		
 		fileMenu.add(startButton);
+		fileMenu.add(clear);
 		fileMenu.add(exitButton);
 		
 		editMenu.add(binary);
 		editMenu.add(decimel);
 		editMenu.add(hexadecimal);
 		
-		viewMenu.add(areaEditor);
+		//viewMenu.add(areaEditor);
 		viewMenu.add(gridEditor);
 		
 		gridPanel = new JPanel();
@@ -254,7 +265,7 @@ public class SimpleMachineEditor extends JFrame{
 				}
 				errors = nerrors;
 			}
-			JOptionPane.showMessageDialog(this, "Formating error in byte(s)\n " + errors);
+			//JOptionPane.showMessageDialog(this, "Formating error in byte(s)\n " + errors);
 		}
 	}
 }
