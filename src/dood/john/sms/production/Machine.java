@@ -1,22 +1,31 @@
 package dood.john.sms.production;
 
+/*
+ * Example Program:
+11 2F 12 2E 23 00 20 00 24 FF 53 31 52 24 B2 12 
+B0 0A 33 2D C0 00 00 00 00 00 00 00 00 00 00 00 
+00 00 00 00 00 00 00 00 00 00 00 00 00 00 03 02 
+ * 
+ * Multiplies the numbers in 0x2E (3) and 0x2F (2) and stores the result in 0x2D
+ */
+
 public class Machine {
 	private int[] main_memory;
 	private int pc;
 	private int[] register;
-	int halt;
+	boolean halted;
 	
 	public Machine(int[] main_memory){
 		this.main_memory = main_memory;
 		pc = 0;
 		register = new int[16];
-		halt = 0;
+		halted = false;
 	}
 	
 	public void step(){
-		if(halt == 1) return;
+		if(halted) return;
 		int opcode = main_memory[pc]/16;
-		int operand1 = main_memory[pc]%16, operand2 = main_memory[pc+1]/16, operand3 = main_memory[pc+1]%16;
+		int operand1 = main_memory[pc]%16, operand2 = main_memory[(pc+1)%256]/16, operand3 = main_memory[(pc+1)%256]%16;
 		pc+=2;
 		pc%=256;
 		switch(opcode){
@@ -56,14 +65,18 @@ public class Machine {
 			}
 			break;
 		case 0xC:
-			halt = 1;
+			halted = true;
 			break;
+		}
+		if(halted){
+			pc--;
+			pc%=256;
 		}
 	}
 	
 	private int add2(int a, int b){
 		int ret = a + b;
-		if(ret > 127)
+		if(ret > 255)
 			ret -= 256;
 		return ret;
 	}
@@ -101,7 +114,7 @@ public class Machine {
 	}
 	
 	public boolean halted(){
-		return halt == 1;
+		return halted;
 	}
 
 }

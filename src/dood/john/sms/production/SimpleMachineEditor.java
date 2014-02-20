@@ -2,6 +2,7 @@ package dood.john.sms.production;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -63,15 +64,25 @@ public class SimpleMachineEditor extends JFrame{
 		loadFromText = new JMenuItem("Load from text (Byte)");
 		loadFromText.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String string = JOptionPane.showInputDialog("Enter program two hexadecimal digits at a time\neg. 12 34 56 78 9A BC DE F0");
-				String[] strings = string.split(" ");
-				for(int i = 0; i < strings.length && i < 256; i++){
+				String string = readText("Enter program two hexadecimal digits at a time\neg. 12 34 56 78 9A BC DE F0");
+				if(string == null) return;
+				String[] ustrings = string.split(" ");
+				ArrayList<String> strings = new ArrayList<String>();
+				for(String s : ustrings){
+					if(!s.equals(""))
+						strings.add(s);
+				}
+				int i;
+				for(i = 0; i < strings.size() && i < 256; i++){
 					try{
-						data[i] = Integer.parseInt(strings[i],16);
+						data[i] = Integer.parseInt(strings.get(i),16);
 					}
 					catch(NumberFormatException ex){
 						data[i] = 0;
 					}
+				}
+				for(; i < 256; i++){
+					data[i] = 0;
 				}
 				updateEditor();
 			}
@@ -79,18 +90,28 @@ public class SimpleMachineEditor extends JFrame{
 		loadFromTextWord = new JMenuItem("Load from text (Word)");
 		loadFromTextWord.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				String string = JOptionPane.showInputDialog("Enter program four hexadecimal digits at a time\nFor proper parsing a trailing byte should be suffixed with 00\neg. 1234 5678 9ABC DE00");
-				String[] strings = string.split(" ");
-				for(int i = 0; i < strings.length && i < 128; i++){
+				String string = readText("Enter program four hexadecimal digits at a time\nFor proper parsing a trailing byte should be suffixed with 00\neg. 1234 5678 9ABC DE00");
+				if(string == null) return;
+				String[] ustrings = string.split(" ");
+				ArrayList<String> strings = new ArrayList<String>();
+				for(String s : ustrings){
+					if(!s.equals(""))
+						strings.add(s);
+				}
+				int i;
+				for(i = 0; i < strings.size() && i < 128; i++){
 					try{
 						int j;
-						data[2*i] = (j =Integer.parseInt(strings[i],16))/256;
+						data[2*i] = (j =Integer.parseInt(strings.get(i),16))/256;
 						data[2*i+1] = j%256;
 					}
 					catch(NumberFormatException ex){
 						data[2*i] = 0;
 						data[2*i+1] = 0;
 					}
+				}
+				for(; i < 128; i++){
+					data[2*i] = data[2*i +1] = 0;
 				}
 				updateEditor();
 			}
@@ -163,6 +184,15 @@ public class SimpleMachineEditor extends JFrame{
 			}
 			if(val < 0 || val >= 256) val = 0;
 			data[i] = val;
+		}
+	}
+	
+	private String readText(String message){
+		try {
+			return JOptionPane.showInputDialog(message);
+		}
+		catch(NullPointerException e){
+			return " ";
 		}
 	}
 }

@@ -1,8 +1,11 @@
 package dood.john.sms.production;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -15,6 +18,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
 
 
@@ -72,11 +76,13 @@ public class SimpleMachineSimulator extends JFrame{
 		});
 		step = new JMenuItem("Step");
 		step.addActionListener(new StepHandler());
+		step.setAccelerator(KeyStroke.getKeyStroke(' '));
 		play = new JMenuItem("Play");
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				timer.start();
 				paused = false;
+				updateUI();
 			}
 		});
 		pause = new JMenuItem("Pause");
@@ -84,6 +90,7 @@ public class SimpleMachineSimulator extends JFrame{
 			public void actionPerformed(ActionEvent arg0) {
 				timer.stop();
 				paused = true;
+				updateUI();
 			}
 		});
 		exit = new JMenuItem("Exit");
@@ -146,11 +153,24 @@ public class SimpleMachineSimulator extends JFrame{
 			registers.add(panel);
 		}
 		c.add(registers);
-		
+		addKeyListener(new KeyHandler());
 		pchalt = new JLabel("PC: 0x00, Not Halted, Frequency: 1 Hz, Paused");
 		c.add(pchalt);
 		
 		pack();
+	}
+	
+	public Component add(Component c){
+		c.addKeyListener(new KeyHandler());
+		return super.add(c);
+	}
+	
+	public class KeyHandler extends KeyAdapter{
+		
+		public void keyPressed(KeyEvent e){
+			if(e.getKeyCode() == KeyEvent.VK_SPACE)
+				new StepHandler().actionPerformed(null);
+		}
 	}
 
 
