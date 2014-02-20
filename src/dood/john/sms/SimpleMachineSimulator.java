@@ -4,6 +4,7 @@ import java.awt.Container;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -76,7 +77,7 @@ public class SimpleMachineSimulator extends JFrame{
 		});
 		step = new JMenuItem("Step");
 		step.addActionListener(new StepHandler());
-		step.setAccelerator(KeyStroke.getKeyStroke(' '));
+		step.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK));
 		play = new JMenuItem("Play");
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -152,26 +153,15 @@ public class SimpleMachineSimulator extends JFrame{
 			panel.add(register[i]);
 			registers.add(panel);
 		}
-		c.add(registers);
-		addKeyListener(new KeyHandler());
+		c.add(registers); 
+		
 		pchalt = new JLabel("PC: 0x00, Not Halted, Frequency: 1 Hz, Paused");
 		c.add(pchalt);
 		
 		pack();
 	}
 	
-	public Component add(Component c){
-		c.addKeyListener(new KeyHandler());
-		return super.add(c);
-	}
 	
-	public class KeyHandler extends KeyAdapter{
-		
-		public void keyPressed(KeyEvent e){
-			if(e.getKeyCode() == KeyEvent.VK_SPACE)
-				new StepHandler().actionPerformed(null);
-		}
-	}
 
 
 	public class StepHandler implements ActionListener {
