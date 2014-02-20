@@ -1,4 +1,4 @@
-package dood.john.sms.production;
+package dood.john.sms;
 
 public class Launcher {
 

@@ -1,4 +1,4 @@
-package dood.john.sms.production;
+package dood.john.sms;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridLayout;

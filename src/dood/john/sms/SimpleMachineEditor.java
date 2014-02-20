@@ -1,4 +1,4 @@
-package dood.john.sms.production;
+package dood.john.sms;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
